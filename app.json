@@ -3,7 +3,6 @@
     "name": "initialTutorial",
     "slug": "initialTutorial",
     "version": "1.0.0",
-
     "scheme": "initialTutorial",
     "web": {
       "bundler": "metro",
@@ -17,32 +16,41 @@
         {
           "launchMode": "most-recent"
         }
-      ]
+      ],
+      "expo-secure-store"
     ],
     "experiments": {
       "typedRoutes": true,
-
       "tsconfigPaths": true
     },
-
     "orientation": "portrait",
     "icon": "./assets/icon.png",
-
     "userInterfaceStyle": "light",
-
     "splash": {
       "image": "./assets/splash.png",
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
-    "assetBundlePatterns": ["**/*"],
+    "assetBundlePatterns": [
+      "**/*"
+    ],
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.divineleo20.initialTutorial"
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
+      },
+      "package": "com.divineleo20.initialTutorial"
+    },
+    "extra": {
+      "router": {
+        "origin": false
+      },
+      "eas": {
+        "projectId": "32dba898-1c8e-434d-9d4e-867417e0f7ce"
       }
     }
   }

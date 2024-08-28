@@ -2,19 +2,27 @@ import '../global.css';
 
 import { Stack } from 'expo-router';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
-
-export const unstable_settings = {
-  // Ensure that reloading on `/modal` keeps a back button present.
-  initialRouteName: '(drawer)',
-};
+import { AuthProvider, useAuth } from './context/AuthContext';
+import { APIProvider } from './api/ApiProvider';
 
 export default function RootLayout() {
+  const { onLogout, authState } = useAuth();
   return (
-    <GestureHandlerRootView style={{ flex: 1 }}>
-      <Stack>
-        <Stack.Screen name="(drawer)" options={{ headerShown: false }} />
-        <Stack.Screen name="modal" options={{ title: 'Modal', presentation: 'modal' }} />
-      </Stack>
-    </GestureHandlerRootView>
+    <APIProvider>
+      <AuthProvider>
+        <GestureHandlerRootView style={{ flex: 1 }}>
+          <Stack>
+            {/* {true ? (
+            <Stack.Screen name="(drawer)" options={{ headerShown: false }} />
+          ) : (
+            <Stack.Screen name="(auth)" options={{ headerShown: false }} />
+          )} */}
+            <Stack.Screen name="(auth)" options={{ headerShown: false }} />
+            <Stack.Screen name="(drawer)" options={{ headerShown: false }} />
+            <Stack.Screen name="modal" options={{ title: 'Modal', presentation: 'modal' }} />
+          </Stack>
+        </GestureHandlerRootView>
+      </AuthProvider>
+    </APIProvider>
   );
 }
