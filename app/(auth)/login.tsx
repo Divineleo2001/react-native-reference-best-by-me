@@ -1,8 +1,13 @@
+import axios from 'axios';
+import { useRouter } from 'expo-router';
+import * as SecureStore from 'expo-secure-store';
 import React from 'react';
 import { View, Text } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+import { useGetEvents } from '../api/use-get-events';
 import { useGetToken } from '../api/use-get-token';
+import { useAuth } from '../context/AuthContext';
 
 import CustomButton from '~/components/CustomButton';
 import InputField from '~/components/InputField';
@@ -13,21 +18,57 @@ const LoginPage = () => {
     email: '',
     password: '',
   });
+  const { authState, setAuthState, onLogout } = useAuth();
+  const router = useRouter();
 
   const { mutate: getToken } = useGetToken();
+
   const handleLogin = () => {
     getToken(
-      { username: form.email, password: form.password },
+      { email: form.email, password: form.password },
       {
-        onSuccess: (data) => {
-          console.log(data);
-        },
-        onError: (error) => {
-          console.log(error);
+        onSuccess: async (data) => {
+          setAuthState({
+            token: data.jwtToken,
+            authenticated: true,
+          });
+          axios.defaults.headers.common['Authorization'] = `Bearer ${data.jwtToken}`;
+          await SecureStore.setItemAsync('token', data.jwtToken);
+
+          return data;
         },
       }
     );
+
+    console.log(authState);
+
+    // getToken(
+    //   { email, password },
+    //   {
+    //     onSuccess: async (data) => {
+    //       setAuthState({
+    //         token: data.jwtToken,
+    //         authenticated: true,
+    //       });
+    //       axios.defaults.headers.common['Authorization'] = `Bearer ${data.jwtToken}`;
+    //       await SecureStore.setItemAsync(TOKEN_KEY, data.jwtToken);
+
+    //       return data;
+    //     },
+    //     onError: (error) => {
+    //       console.log(error);
+    //       return error;
+    //     },
+    //   }
+    // );
   };
+
+  const handleRoute = () => {
+    router.push('/(drawer)/(tabs)/');
+    console.log(authState?.token);
+  };
+  // const handleLogin = onLogin(form.email, form.password)
+
   return (
     <SafeAreaView className="bg-white">
       <View className="p-5 ">
@@ -50,21 +91,13 @@ const LoginPage = () => {
           textVariant="default"
           onPress={handleLogin}
         />
-        {/* <InputField
-          label="Email"
-          placeholder="Enter your Email"
-          icon={icons.email}
-          value={form.email}
-          onChangeText={(value: string) => setForm({ ...form, email: value })}
-        /> */}
-        {/* <InputField
-          label="Password"
-          placeholder="Enter your Password"
-          icon={icons.lock}
-          secureTextEntry={true}
-          value={form.password}
-          onChangeText={(value: string) => setForm({ ...form, password: value })}
-        /> */}
+
+        <CustomButton
+          title="Move to Home"
+          bgVariant="danger"
+          textVariant="default"
+          onPress={handleRoute}
+        />
       </View>
     </SafeAreaView>
   );
