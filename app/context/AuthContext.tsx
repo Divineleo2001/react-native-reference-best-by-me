@@ -2,11 +2,14 @@ import axios from 'axios';
 import * as SecureStore from 'expo-secure-store';
 import { createContext, useContext, useEffect, useState } from 'react';
 
+import { useGetToken } from '../api/use-get-token';
+
 interface AuthProps {
   authState?: { token: string | null; authenticated: any | null };
   //   onRegister: (email: string, password: string) => Promise<any>;
   onLogin: (email: string, password: string) => Promise<any>;
   onLogout: () => Promise<void>;
+  setAuthState: React.Dispatch<React.SetStateAction<any>>;
 }
 
 const TOKEN_KEY = 'token';
@@ -14,6 +17,7 @@ const TOKEN_KEY = 'token';
 export const API_URL = 'http://ec2-35-78-87-126.ap-northeast-1.compute.amazonaws.com:8080';
 
 const AuthContext = createContext<AuthProps>({
+  setAuthState: () => {},
   onLogin: async (email: string, password: string) => {},
   onLogout: async () => {},
 });
@@ -32,42 +36,23 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     authenticated: false,
   });
 
-  useEffect(() => {
-    const loadToken = async () => {
-      const token = await SecureStore.getItemAsync(TOKEN_KEY);
-      console.log('stored', token);
+  // useEffect(() => {
+  //   const loadToken = async () => {
+  //     const token = await SecureStore.getItemAsync(TOKEN_KEY);
+  //     console.log('stored', token);
 
-      if (token) {
-        setAuthState({
-          token: token,
-          authenticated: true,
-        });
-        axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-      }
-    };
-    loadToken();
-  }, []);
+  //     if (token) {
+  //       setAuthState({
+  //         token,
+  //         authenticated: true,
+  //       });
+  //       axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+  //     }
+  //   };
+  //   loadToken();
+  // }, []);
 
-  const Login = async (email: string, password: string) => {
-    try {
-      const response = await axios.post(`${API_URL}/api/v1/login`, {
-        email,
-        password,
-      });
-
-      setAuthState({
-        token: response.data.token,
-        authenticated: true,
-      });
-
-      axios.defaults.headers.common['Authorization'] = `Bearer ${response.data.token}`;
-      await SecureStore.setItemAsync(TOKEN_KEY, response.data.token);
-
-      return response;
-    } catch (error) {
-      console.log(error);
-    }
-  };
+  const Login = async (email: string, password: string) => {};
 
   const Logout = async () => {
     await SecureStore.deleteItemAsync(TOKEN_KEY);
@@ -94,6 +79,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     onLogin: Login,
     onLogout: Logout,
     authState,
+    setAuthState,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
